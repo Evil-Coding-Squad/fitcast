@@ -2,16 +2,43 @@ package server
 
 import (
 	"fmt"
+	"io"
+	"log"
 	"net/http"
+	"os"
+	"strconv"
 )
+
+const weather_api_url = "https://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&appid=%s"
 
 type WeatherHandler struct{}
 
 func (handler *WeatherHandler) getWeatherHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: Make the actual API call to get the real weather info
 	query := r.URL.Query()
-	lon, lat := query.Get("lon"), query.Get("lat")
-	_, err := fmt.Fprintf(w, "lon: %s, lat: %s\n", lon, lat)
+	lonQuery, latQuery := query.Get("lon"), query.Get("lat")
+
+	lon, err := strconv.ParseFloat(lonQuery, 32)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	lat, err := strconv.ParseFloat(latQuery, 32)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	apiKey := os.Getenv("WEATHER_API_KEY")
+	res, err := http.Get(fmt.Sprintf(weather_api_url, lon, lat, apiKey))
+
+	defer func() {
+		if err := res.Body.Close(); err != nil {
+			log.Println("error closing response body")
+		}
+	}()
+	_, err = io.Copy(w, res.Body)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
