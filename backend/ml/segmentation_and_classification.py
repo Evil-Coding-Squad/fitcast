@@ -121,13 +121,13 @@ with Image.open(image_path).convert("RGB") as original_image:
 
         # Save the output image
         output_image.save("filtered_clothing_image.png")
-        print("Saved filtered image")
+        # print("Saved filtered image")
 
 # === Classification ===
 
 # Check if CUDA is available
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"Using device: {device}")
+# print(f"Using device: {device}")
 
 
 # Takes a square image and returns a 28x28 greyscale image
@@ -160,7 +160,7 @@ def save_greyscale_image(image_array, output_path="./greyscale_test_out.png"):
 image_path = "./filtered_clothing_image.png"
 input_image = to_28x28_greyscale(image_path)
 save_greyscale_image(input_image)
-print(input_image.shape)  # Should print (28, 28)
+# print(input_image.shape)  # Should print (28, 28)
 
 # Convert to a tensor
 input_tensor = torch.tensor(input_image, dtype=torch.float32).reshape(-1, 1, 28, 28)
@@ -203,8 +203,8 @@ output_tensor = torch.cat(
     (output_tensor_unprocessed[:, :8], output_tensor_unprocessed[:, 8 + 1 :]), dim=1
 )
 # output_tensor = output_tensor_unprocessed
-print("Raw Output: ", output_tensor)
-print("Predicted Label: ", torch.argmax(output_tensor).item())
+# print("Raw Output: ", output_tensor)
+# print("Predicted Int Label: ", torch.argmax(output_tensor).item())
 
 # Convert the output to a label
 # Labels 0 T-shirt/top, 1 Trouser, 2 Pullover, 3 Dress, 4 Coat, 5 Sandal, 6 Shirt, 7 Sneaker, 8 Bag, 9 Ankle boot
@@ -220,7 +220,8 @@ int_to_label = {
     8: "Ankle boot",
 }
 
-print("Predicted Label: ", int_to_label[torch.argmax(output_tensor).item()])
+# print("Predicted Label: ", int_to_label[torch.argmax(output_tensor).item()])
+print(int_to_label[torch.argmax(output_tensor).item()])
 
 
 """ with Image.open("processed_image.png") as image:

@@ -1,0 +1,2 @@
+/Users/kaituranski/Library/Python/3.10/lib/python/site-packages/transformers/utils/deprecation.py:165: UserWarning: The following named arguments are not valid for `SegformerImageProcessor.__init__` and were ignored: 'feature_extractor_type'
+  return func(*args, **kwargs)
