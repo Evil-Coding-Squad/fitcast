@@ -17,7 +17,7 @@ model = AutoModelForSemanticSegmentation.from_pretrained(
 
 # Set image
 image_location = "./test_imgs/"
-image_name = "shorts2.jpg"
+image_name = "top.png"
 image_path = os.path.join(image_location, image_name)
 
 # Label switiching
@@ -76,7 +76,7 @@ with Image.open(image_path) as original_image:
     # Display the image
 
     # Display the image
-    processed_image = plt.imshow(int_tensor)
+    """ processed_image = plt.imshow(int_tensor)
 
     # Add interactive cursor
     cursor = mplcursors.cursor(processed_image, hover=True)
@@ -88,7 +88,7 @@ with Image.open(image_path) as original_image:
         label = int_to_label.get(int(int_tensor[y, x]), "Unknown")
         sel.annotation.set(text=label)
 
-    plt.show()
+    plt.show() """
 
     # Convert to PIL image
     transform_to_image = T.ToPILImage()
@@ -110,7 +110,7 @@ with Image.open(image_path) as original_image:
                 filter_pixel = filter_image.getpixel((x, y))
 
                 # If the filter pixel is 0, make the output pixel transparent
-                if filter_pixel == 0:
+                if filter_pixel in [0, 2, 11, 12, 13, 14, 15]:
                     output_image.putpixel((x, y), (0, 0, 0, 0))
                 else:
                     # Otherwise, copy the pixel from the clothing image
