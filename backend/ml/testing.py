@@ -4,6 +4,7 @@ import torchvision.transforms as T
 import matplotlib.pyplot as plt
 import torch.nn as nn
 import os
+import mplcursors
 
 processor = SegformerImageProcessor.from_pretrained("mattmdjaga/segformer_b2_clothes")
 model = AutoModelForSemanticSegmentation.from_pretrained(
@@ -16,7 +17,7 @@ model = AutoModelForSemanticSegmentation.from_pretrained(
 
 # Set image
 image_location = "./test_imgs/"
-image_name = "shirt.png"
+image_name = "shorts2.jpg"
 image_path = os.path.join(image_location, image_name)
 
 # Label switiching
@@ -64,22 +65,35 @@ with Image.open(image_path) as image:
         align_corners=False,
     )
 
+    # Convert to int tensor and print tensor info
     pred_seg = upsampled_logits.argmax(dim=1)[0]
     int_tensor = pred_seg.int()
     print("\n\nImage type: ", int_tensor.type())
-    print("\n\nImage shape: ", int_tensor.shape)
-    print("\n\nImage: ", int_tensor)
-    print("\n\nImage unique: ", int_tensor.unique())
+    print("\nImage shape: ", int_tensor.shape)
+    print("\nImage: ", int_tensor)
+    print("\nImage unique: ", int_tensor.unique())
 
-    # processed_image = plt.imshow(pred_seg)
-    # plt.axis("off")
-    # processed_image.make_image()
-    # plt.show()
+    # Display the image
+
+    # Display the image
+    processed_image = plt.imshow(int_tensor)
+
+    # Add interactive cursor
+    cursor = mplcursors.cursor(processed_image, hover=True)
+
+    # Define the annotation function
+    @cursor.connect("add")
+    def on_add(sel):
+        x, y = int(sel.target[0]), int(sel.target[1])
+        label = int_to_label.get(int(int_tensor[y, x]), "Unknown")
+        sel.annotation.set(text=label)
+
+    plt.show()
 
     # Convert to PIL image
     transform_to_image = T.ToPILImage()
     with transform_to_image(int_tensor) as processed_image:
-        processed_image.show()
+        # processed_image.show()
         processed_image.save("processed_image.png")
 
 with Image.open("processed_image.png") as image:
@@ -87,6 +101,6 @@ with Image.open("processed_image.png") as image:
 
     reopened_tensor = transform_to_PIL(image)
     print("\n\nReopened tensor: ", reopened_tensor)
-    print("\n\nReopened tensor type: ", reopened_tensor.type())
-    print("\n\nReopened tensor shape: ", reopened_tensor.shape)
-    print("\n\nReopened tensor unique: ", reopened_tensor.unique())
+    print("\nReopened tensor type: ", reopened_tensor.type())
+    print("\nReopened tensor shape: ", reopened_tensor.shape)
+    print("\nReopened tensor unique: ", reopened_tensor.unique())
