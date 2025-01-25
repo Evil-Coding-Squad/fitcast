@@ -20,7 +20,7 @@ model = AutoModelForSemanticSegmentation.from_pretrained(
 
 # Set image
 image_location = "./test_imgs/"
-image_name = "shorts2.jpg"
+image_name = "jacket.jpg"
 image_path = os.path.join(image_location, image_name)
 
 # Label switiching
@@ -202,6 +202,7 @@ output_tensor_unprocessed = predict(SimpleCNN(), input_tensor)
 output_tensor = torch.cat(
     (output_tensor_unprocessed[:, :8], output_tensor_unprocessed[:, 8 + 1 :]), dim=1
 )
+# output_tensor = output_tensor_unprocessed
 print("Raw Output: ", output_tensor)
 print("Predicted Label: ", torch.argmax(output_tensor).item())
 

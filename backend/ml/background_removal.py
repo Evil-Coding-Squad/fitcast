@@ -76,7 +76,7 @@ with Image.open(image_path).convert("RGB") as original_image:
     # Display the image
 
     # Display the image
-    processed_image = plt.imshow(int_tensor)
+    """ processed_image = plt.imshow(int_tensor)
 
     # Add interactive cursor
     cursor = mplcursors.cursor(processed_image, hover=True)
@@ -88,7 +88,7 @@ with Image.open(image_path).convert("RGB") as original_image:
         label = int_to_label.get(int(int_tensor[y, x]), "Unknown")
         sel.annotation.set(text=label)
 
-    plt.show()
+    plt.show() """
 
     # Convert to PIL image
     transform_to_image = T.ToPILImage()
