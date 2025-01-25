@@ -26,8 +26,8 @@ export default function Index() {
     //Fetch weather data with axios from backend
     try {
       const data = {
-        lon: location?.coords.longitude,
-        lat: location?.coords.latitude,
+        longitude: location?.coords.longitude,
+        latitude: location?.coords.latitude,
       };
   
       const response = await axios.get('https://localhost:8080/api/weather', {
