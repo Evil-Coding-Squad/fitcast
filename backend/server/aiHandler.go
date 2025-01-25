@@ -62,6 +62,7 @@ func (handler *SegmentHandler) handlePost(w http.ResponseWriter, r *http.Request
 
 	w.Header().Set("Content-Type", sourceImg.MimeType)
 	w.Header().Set("Content-Disposition", `inline; filename="`+removeExtension(sourceImg.Name)+`.jpg"`)
+	w.Header().Set("Predicted-Label", "Hello")
 	w.Write(sourceImg.Bytes)
 
 	/* _, err = fmt.Fprintln(w, "Image processing not yet implemented")
