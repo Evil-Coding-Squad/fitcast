@@ -78,7 +78,7 @@ export default function Index() {
           gap: 40,
         }}
       >
-          {weatherData && <Text style={styles.heavyText}>{(weatherData?.main.temp).toFixed(2)}</Text>}
+          {weatherData && <Text style={styles.heavyText}>{Math.round(weatherData?.main.temp)}°C</Text>}
         <Image
           source={require('../../assets/images/icons8-cloud-50.png')}
           style={{
