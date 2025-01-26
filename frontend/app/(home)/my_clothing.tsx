@@ -1,5 +1,6 @@
-import { ScrollView, Text, View, StyleSheet, Dimensions, Modal, TouchableOpacity, Image, Button} from "react-native";
+import { ScrollView, Text, View, StyleSheet, Dimensions, Modal, TouchableOpacity, Button, Pressable} from "react-native";
 import { useState, useEffect } from "react";
+import {Image} from 'expo-image'
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system'
 import * as SQLite from 'expo-sqlite';
@@ -41,6 +42,7 @@ export default function MyClothing() {
 
         if (!result.canceled) {
             setImage(result.assets[0].uri);
+            console.log(result)
         }
     }
 
@@ -102,11 +104,14 @@ export default function MyClothing() {
         <SafeAreaView>
 
         </SafeAreaView>
-        <View style = {styles.item}>
-          <Button title="Add New Clothing" onPress={toggleModal} color={"blue"}/>
-        </View>
-
-
+            <Pressable onPress={toggleModal} style={styles.item}>
+                <Text style = {{
+                    color: 'white'
+                }}
+                >
+                    Add New Clothing
+                </Text>
+            </Pressable>
         <Modal
          visible={modalVisible}
          animationType="slide" // Makes the modal slide down from the top
@@ -118,10 +123,10 @@ export default function MyClothing() {
                 }
             >
                 <TouchableOpacity onPress={choosePicture}>
-                    <Image source = {require('../../assets/images/icons8-camera-100.png')}/>
+                    <Text>Choose Image</Text>
                 </TouchableOpacity>
 
-                {image && <Image source = {{uri: image}}/>}
+                {image && <Image source = {image || ""}/>}
 
                 <Button title="Cancel" onPress={toggleModal} color={"blue"}/>
 
@@ -158,6 +163,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'blue',
+      color: 'white',
     padding: 20,
     width: ScreenWidth*0.7,
     height: 40,
