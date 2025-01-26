@@ -4,36 +4,42 @@ import * as Location from 'expo-location';
 import axios from "axios";
 
 export default function Index() {
-  const [weatherData, setWeatherData] = useState(null);
+  const [weatherData, setWeatherData] = useState<any | null>(null);
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   async function getCurrentLocation() {
-      
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') {
-      console.log('Failed to fetch user location')
-      return;
-    }
+    try {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+            console.log('Failed to fetch user location')
+            return;
+        }
+        let coords = await Location.getCurrentPositionAsync({
 
-    let location = await Location.getCurrentPositionAsync({});
-    setLocation(location);
-    console.log(location)
+        });
+        setLocation(coords);
+        console.log(location)
+        return coords;
+    }catch (e){
+        console.log(e)
+    }
   }
 
   const fetchData = async () => {
-    await getCurrentLocation();
+
     //Fetch weather data with axios from backend
     try {
-      const data = {
-        longitude: location?.coords.longitude,
-        latitude: location?.coords.latitude,
-      };
-  
-      const response = await axios.get('https://localhost:8080/api/weather', {
-        params: data
-      }); 
-      setWeatherData(response.data);
+        let loc = await getCurrentLocation();
+        const data = {
+            lon: loc?.coords.longitude.toFixed(3),
+            lat: loc?.coords.latitude.toFixed(3),
+        };
+        const endpoint = `http://143.198.31.74:8080/api/weather?lon=${data.lon}&lat=${data.lat}`
+        console.log(endpoint)
+        const response = await axios.get(endpoint);
+        console.log(response.data)
+        setWeatherData(response.data);
     } catch (error) {
       console.error('Error posting data:', error);
     }
@@ -62,7 +68,7 @@ export default function Index() {
           margin: 50,
         }}
       >
-      <Text style={styles.heavyText}>Day of Week</Text>
+      <Text style={styles.heavyText}>{weatherData?.weather[0].description}</Text>
       <View
         style={{
           flex: 1,
@@ -72,7 +78,7 @@ export default function Index() {
           gap: 40,
         }}
       >
-        <Text style={styles.heavyText}>-15 C</Text>
+          {weatherData && <Text style={styles.heavyText}>{(weatherData?.main.temp).toFixed(2)}</Text>}
         <Image
           source={require('../../assets/images/icons8-cloud-50.png')}
           style={{

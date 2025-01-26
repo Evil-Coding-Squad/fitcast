@@ -1,10 +1,10 @@
-import { ScrollView, Text, View, StyleSheet, Dimensions, Modal, TouchableOpacity, Image } from "react-native";
+import { ScrollView, Text, View, StyleSheet, Dimensions, Modal, TouchableOpacity, Image, Pressable} from "react-native";
 import { useState, useEffect } from "react";
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system'
 import * as SQLite from 'expo-sqlite';
 import axios from "axios";
-
+import { SafeAreaView } from 'react-native-safe-area-context';
 const db = SQLite.openDatabaseSync('fitCast.db');
 
 export default function MyClothing() {
@@ -14,7 +14,7 @@ export default function MyClothing() {
     const [loadedImages, setloadedImages] = useState([]);  // Store the data from SQLite
 
     const fetchData = async () => {
-        db.withTransactionAsync(async () => {
+        await db.withTransactionAsync(async () => {
             await db.execAsync('CREATE TABLE IF NOT EXISTS processedImages (id INTEGER PRIMARY KEY NOT NULL, uri TEXT NOT NULL, intValue INTEGER);')
             setloadedImages(await db.getAllAsync('SELECT * FROM processedImages'));
         })
@@ -90,22 +90,19 @@ export default function MyClothing() {
         styles.container
     }
     >
-        <View style = {styles.item}>
-            <TouchableOpacity onPress={toggleModal}>
-                <Text style={styles.itemText}>Add Clothing Item</Text>
-            </TouchableOpacity>
-        </View>
+        <SafeAreaView>
 
-        //for every element in the items array return a view
-        //load from db and refresh when new item is added
+        </SafeAreaView>
+        <View style = {styles.item}>
+            <Pressable onPress={toggleModal}>
+                <Text>Add Clothing</Text>
+            </Pressable>
+        </View>
 
         {
             loadedImages.map((item) => (
                 <View key={"item.id"} style={styles.item}>
                     <Text style={styles.itemText}>{""}</Text>
-                    //the image
-                    //a button to remove the image
-                    //image name
                 </View>
             ))
         }
@@ -165,7 +162,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'blue',
     padding: 20,
     width: ScreenWidth*0.7,
-    height: 30,
+    height: 40,
     borderRadius: 10,
   },
   heavyText: {
