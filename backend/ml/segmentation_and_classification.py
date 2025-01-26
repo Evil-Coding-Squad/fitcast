@@ -233,7 +233,7 @@ int_to_label = {
     3: "Dress",
     4: "Coat",
     5: "Sandals",
-    6: "Shirt",
+    6: "Top",
     7: "Shoes",
     8: "Boots",
 }
