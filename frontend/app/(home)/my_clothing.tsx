@@ -1,11 +1,11 @@
-import { ScrollView, Text, View, StyleSheet, Dimensions, Modal, TouchableOpacity, Image } from "react-native";
+import { ScrollView, Text, View, StyleSheet, Dimensions, Modal, TouchableOpacity, Image, Pressable} from "react-native";
 import { useState, useEffect } from "react";
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system'
 import * as SQLite from 'expo-sqlite';
 import axios from "axios";
-
-//const db = SQLite.openDatabaseSync('fitCast.db');
+import { SafeAreaView } from 'react-native-safe-area-context';
+const db = SQLite.openDatabaseSync('fitCast.db');
 
 export default function MyClothing() {
     const [modalVisible, setModalVisible] = useState(false); // State to control modal visibility
@@ -90,10 +90,13 @@ export default function MyClothing() {
         styles.container
     }
     >
+        <SafeAreaView>
+
+        </SafeAreaView>
         <View style = {styles.item}>
-            <TouchableOpacity onPress={toggleModal}>
-                <Text style={styles.itemText}>Add Clothing Item</Text>
-            </TouchableOpacity>
+            <Pressable onPress={toggleModal}>
+                <Text>Add Clothing</Text>
+            </Pressable>
         </View>
         {
             loadedImages.map((item) => (
@@ -158,7 +161,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'blue',
     padding: 20,
     width: ScreenWidth*0.7,
-    height: 30,
+    height: 40,
     borderRadius: 10,
   },
   heavyText: {
