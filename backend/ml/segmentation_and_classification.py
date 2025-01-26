@@ -115,7 +115,7 @@ with Image.open(image_path).convert("RGB") as original_image:
     transform_to_image = T.ToPILImage()
     with transform_to_image(int_tensor) as processed_image:
         # processed_image.show()
-        processed_image.save("processed_image.png")
+        # processed_image.save("processed_image.png")
 
         # Open the clothing image and the filter image
         clothing_image = original_image.convert("RGBA")

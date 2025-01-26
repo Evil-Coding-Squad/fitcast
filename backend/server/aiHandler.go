@@ -6,6 +6,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -56,19 +57,61 @@ func (handler *SegmentHandler) handlePost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// some processing here
+	// Process the image
+	predictedLabel, err := processClothingImage(sourceImg)
+	if err != nil {
+		fmt.Println("Error processing the image. Reason: ", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	//removeFile(sourceImg.FullPath)
 
-	w.Header().Set("Content-Type", sourceImg.MimeType)
-	w.Header().Set("Content-Disposition", `inline; filename="`+removeExtension(sourceImg.Name)+`.jpg"`)
-	w.Header().Set("Predicted-Label", "Hello")
+	w.Header().Set("Content-Type", "image/png")
+	w.Header().Set("Content-Disposition", `inline; filename="output_img.png"`)
+	w.Header().Set("Predicted-Label", predictedLabel)
 	w.Write(sourceImg.Bytes)
 
 	/* _, err = fmt.Fprintln(w, "Image processing not yet implemented")
 	if err != nil {
 		log.Fatal(err)
 	} */
+}
+
+func processClothingImage(img ImageFile) (string, error) {
+	cmd := exec.Command("python3", "../ml/segmentation_and_classification.py", img.FullPath, "./output_img.png")
+	cmd.Dir = tempFolderPath
+	out, err := cmd.StdoutPipe()
+	if err != nil {
+		fmt.Println("Error in getting stdout pipe. Reason: ", err)
+		return "", err
+	}
+	if err := cmd.Start(); err != nil {
+		fmt.Println("Error in starting the command. Reason: ", err)
+		return "", err
+	}
+	outputBytes, err := io.ReadAll(out)
+	if err != nil {
+		fmt.Println("Error in reading the output bytes. Reason: ", err)
+		return "", err
+	}
+	if err := cmd.Wait(); err != nil {
+		fmt.Println("Error in waiting for the command to finish. Reason: ", err)
+		return "", err
+	}
+
+	return string(outputBytes), nil
+}
+
+func getFile(filePath string) (ImageFile, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return ImageFile{}, err
+	}
+	defer file.Close()
+
+	//image, _, err := image.Decode(file)
+	return ImageFile{}, nil
 }
 
 func removeExtension(filePath string) string {
