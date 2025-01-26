@@ -7,7 +7,9 @@ import * as SQLite from 'expo-sqlite';
 import axios from "axios";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { blue, ColorProperties } from "react-native-reanimated/lib/typescript/Colors";
-//const db = SQLite.openDatabaseSync('fitCast.db');
+import {API_URL} from "@/app/idfk/constants";
+
+const db = SQLite.openDatabaseSync('fitCast.db');
 
 export default function MyClothing() {
     const [modalVisible, setModalVisible] = useState(false); // State to control modal visibility
@@ -47,44 +49,55 @@ export default function MyClothing() {
     }
 
     const uploadPicture = async () => {
-        // try {
-        //     if (!image) {
-        //         setUploadStatus('Please pick an image first!');
-        //         return;
-        //     }
-        //     const fileInfo = await FileSystem.getInfoAsync(image);
-        //     const fileExtension = fileInfo.uri.split('.').pop();
-        //     const mimeType = `image/${fileExtension === 'jpg' ? 'jpeg' : fileExtension}`;
-        //     const imageBlob = await fetch(image).then((res) => res.blob());
+        try {
+            if (!image) {
+                setUploadStatus('Please pick an image first!');
+                return;
+            }
+            const fileInfo = await FileSystem.getInfoAsync(image);
+            const fileExtension = fileInfo.uri.split('.').pop();
+            const mimeType = `image/${fileExtension === 'jpg' ? 'jpeg' : fileExtension}`;
+            //const imageBlob = await fetch(image).then((res) => res.blob());
       
-        //     const formData = new FormData();
-        //     formData.append('file', imageBlob, `image.${fileExtension}`);
-        //   const response = await axios.post('https://localhost:8080/processClothingImage', formData, {
-        //     headers: {
-        //       'Content-Type': 'multipart/form-data', // Ensure this header is set for file uploads
-        //     },
-        //   });
+            const formData = new FormData();
+            formData.append('image',
+                {
+                    uri: image,
+                    name: `testfile.${fileExtension}`
+                } as any);
+
+            const config = {
+                method: 'post',
+                maxBodyLength: Infinity,
+                url: `${API_URL}/api/ai/segment`,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                data: formData,
+            };
+
+          const response = await axios.request(config);
     
-        //   if (response.status === 200) {
-        //     setUploadStatus('Upload Successful!');
-        //     //store image info to sql database and then 
-        //     //reset modal
-        //     await db.execAsync(`
-        //         PRAGMA journal_mode = WAL;
-        //         CREATE TABLE IF NOT EXISTS processedImages (id INTEGER PRIMARY KEY NOT NULL, uri TEXT NOT NULL, intValue INTEGER);
-        //         INSERT INTO processedImages (uri) VALUES ('${"sdfsdf"}');
-        //         `);
-        //     setUploadStatus('');
-        //     setImage(null);
-        //     setModalVisible(false);
-        //     fetchData();
-        //   } else {
-        //     setUploadStatus('Upload Failed.');
-        //   }
-        // } catch (error) {
-        //   setUploadStatus('Error uploading image.');
-        //   console.error(error);
-        // }
+          if (response.status === 200) {
+            setUploadStatus('Upload Successful!');
+            //store image info to sql database and then
+            //reset modal
+            await db.execAsync(`
+                PRAGMA journal_mode = WAL;
+                CREATE TABLE IF NOT EXISTS processedImages (id INTEGER PRIMARY KEY NOT NULL, uri TEXT NOT NULL, intValue INTEGER);
+                INSERT INTO processedImages (uri) VALUES ('${"sdfsdf"}');
+                `);
+            setUploadStatus('');
+            setImage(null);
+            setModalVisible(false);
+            fetchData();
+          } else {
+            setUploadStatus('Upload Failed.');
+          }
+        } catch (error) {
+          setUploadStatus('Error uploading image.');
+          console.error(error);
+        }
       };
 
     //   {
@@ -126,7 +139,7 @@ export default function MyClothing() {
                     <Text>Choose Image</Text>
                 </TouchableOpacity>
 
-                {image && <Image source = {{uri: image || ""}}/>}
+                <Image source = {{uri: image ?? ""}} style={styles.image}/>
 
                 <Button title="Cancel" onPress={toggleModal} color={"blue"}/>
 
@@ -152,6 +165,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
+    image: {
+        width: 200, // Adjust width
+        height: 150, // Adjust height
+        marginTop: 20, // Add some spacing
+        borderRadius: 10, // Optional: Makes the image corners rounded
+    },
   modal_container: {
     flex: 1,
     flexDirection: 'column',
@@ -166,7 +185,7 @@ const styles = StyleSheet.create({
       color: 'white',
     padding: 20,
     width: ScreenWidth*0.7,
-    height: 40,
+    height: 80,
     borderRadius: 10,
   },
   heavyText: {
