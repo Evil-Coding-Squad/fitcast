@@ -68,7 +68,9 @@ export default function Index() {
           margin: 50,
         }}
       >
-      <Text style={styles.heavyText}>{weatherData?.weather[0].description}</Text>
+      <Text style={styles.heavyText}>{weatherData?.weather[0].main}</Text>
+      <Text style={styles.mediumText}>Details: {weatherData?.weather[0].description}</Text>
+      <Text style={styles.lightText}>Location: {weatherData?.name}</Text>
       <View
         style={{
           flex: 1,
@@ -78,7 +80,7 @@ export default function Index() {
           gap: 40,
         }}
       >
-          {weatherData && <Text style={styles.heavyText}>{(weatherData?.main.temp).toFixed(2)}</Text>}
+            {weatherData && <Text style={styles.heavyText}>{Math.round(weatherData?.main.temp)}°</Text>}
         <Image
           source={require('../../assets/images/icons8-cloud-50.png')}
           style={{
@@ -102,5 +104,13 @@ const styles = StyleSheet.create({
   heavyText: {
     fontSize: 24,
     fontWeight: '800', // Makes the font heavier
+  },
+  mediumText: {
+    fontSize: 14,
+    fontWeight: '600', // Makes the font heavier
+  },
+  lightText: {
+    fontSize: 14,
+    fontWeight: '400', // Makes the font heavier
   },
 });
