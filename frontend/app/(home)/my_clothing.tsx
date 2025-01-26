@@ -85,7 +85,7 @@ export default function MyClothing() {
           const saveImage = async (binaryData: string) => {
               const filePath = `${FileSystem.documentDirectory}image${getRandomInt(0, 100000000)}.png`
               try {
-                  await FileSystem.writeAsStringAsync(filePath, binaryData, {encoding: FileSystem.EncodingType.Base64})
+                  await FileSystem.writeAsStringAsync(filePath, binaryData, {encoding: FileSystem.EncodingType.UTF8})
                   return Promise.resolve(filePath)
               } catch (e) {
                   console.error(e)
