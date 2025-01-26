@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-const weather_api_url = "https://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&appid=%s"
+const weather_api_url = "https://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&appid=%s&units=metric"
 
 func parseLonAndLat(lonStr string, latStr string) (float64, float64, error) {
 	lon, err := strconv.ParseFloat(lonStr, 64)
@@ -27,8 +27,15 @@ func parseLonAndLat(lonStr string, latStr string) (float64, float64, error) {
 
 type WeatherHandler struct{}
 
+func (handler *WeatherHandler) handleGetWeatherError(status int, w http.ResponseWriter) {
+	switch status {
+	default:
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = fmt.Fprintln(w, "Weather API error")
+	}
+}
+
 func (handler *WeatherHandler) getWeatherHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO: Make the actual API call to get the real weather info
 	query := r.URL.Query()
 	lonQuery, latQuery := query.Get("lon"), query.Get("lat")
 
@@ -41,6 +48,15 @@ func (handler *WeatherHandler) getWeatherHandler(w http.ResponseWriter, r *http.
 
 	apiKey := os.Getenv("WEATHER_API_KEY")
 	res, err := http.Get(fmt.Sprintf(weather_api_url, lon, lat, apiKey))
+	if err != nil {
+		w.WriteHeader(http.StatusBadGateway)
+		_, _ = fmt.Fprintln(w, "Error fetching weather.")
+		return
+	}
+	if res.StatusCode != http.StatusOK {
+		handler.handleGetWeatherError(res.StatusCode, w)
+		return
+	}
 
 	defer func() {
 		if err := res.Body.Close(); err != nil {
