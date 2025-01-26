@@ -2,3 +2,7 @@
 .env
 go.sum
 env
+ml-env
+temp-files/*.png
+temp-files/*.jpg
+temp-files/*.jpeg

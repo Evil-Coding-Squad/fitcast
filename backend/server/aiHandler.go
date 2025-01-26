@@ -88,6 +88,7 @@ func (handler *SegmentHandler) handlePost(w http.ResponseWriter, r *http.Request
 }
 
 func processClothingImage(img ImageFile) (string, error) {
+	// Run the machine learning model
 	cmd := exec.Command("python3", "../ml/segmentation_and_classification.py", img.FullPath, "./output_img.png")
 	cmd.Dir = tempFolderPath
 	out, err := cmd.StdoutPipe()
