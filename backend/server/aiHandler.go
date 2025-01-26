@@ -57,37 +57,40 @@ func (handler *SegmentHandler) handlePost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	sendNormalResponse := true
 	// Process the image
 	predictedLabel, err := processClothingImage(sourceImg)
 	if err != nil {
 		fmt.Println("Error processing the image. Reason: ", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		sendNormalResponse = false
 	}
 
 	outputImage, err := getFile(filepath.Join(tempFolderPath, "output_img.png"))
 	if err != nil {
 		fmt.Println("Error getting the output image. Reason: ", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		sendNormalResponse = false
 	}
 
-	w.Header().Set("Content-Type", "image/png")
-	w.Header().Set("Content-Disposition", `inline; filename="output_img.png"`)
-	w.Header().Set("Predicted-Label", predictedLabel)
-	w.Write(outputImage.Bytes)
+	if sendNormalResponse {
+		w.Header().Set("Content-Type", "image/png")
+		w.Header().Set("Content-Disposition", `inline; filename="output_img.png"`)
+		w.Header().Set("Predicted-Label", predictedLabel)
+		w.Write(outputImage.Bytes)
+	}
 
 	// Remove the temp files
-	removeFile(sourceImg.FullPath)
-	removeFile(outputImage.FullPath)
-
-	/* _, err = fmt.Fprintln(w, "Image processing not yet implemented")
-	if err != nil {
-		log.Fatal(err)
-	} */
+	if removed := removeFile(sourceImg.FullPath); !removed {
+		fmt.Println("Error removing the received image")
+	}
+	if removed := removeFile(outputImage.FullPath); !removed {
+		fmt.Println("Error removing the output image")
+	}
 }
 
 func processClothingImage(img ImageFile) (string, error) {
+	// Run the machine learning model
 	cmd := exec.Command("python3", "../ml/segmentation_and_classification.py", img.FullPath, "./output_img.png")
 	cmd.Dir = tempFolderPath
 	out, err := cmd.StdoutPipe()
@@ -171,6 +174,7 @@ func saveFile(file multipart.File, header *multipart.FileHeader) (ImageFile, err
 }
 
 func removeFile(path string) bool {
+	//fmt.Print("Removing file: ", path)
 	err := os.Remove(path)
 	if err != nil {
 		fmt.Println("\nCannot remove file. Reason: ", err)
