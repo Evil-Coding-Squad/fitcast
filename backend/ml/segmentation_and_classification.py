@@ -10,25 +10,21 @@ import torch.nn.functional as F
 import numpy as np
 import sys
 
-if len(sys.argv) == 1:
-    output_path = "./"
-    train_method = "full"
-    num_epochs = 10
-elif len(sys.argv) == 2:
-    output_path = sys.argv[1]
-    train_method = "full"
-elif len(sys.argv) == 3:
-    output_path = sys.argv[1]
-    if str.lower(sys.argv[2]) == "head":
-        train_method = "head"
-    elif str.lower(sys.argv[2]) == "full":
-        train_method = "full"
-    elif str.lower(sys.argv[2]) == "head+1":
-        train_method = "head+1"
-    else:
-        print("Invalid train method. Options: head, full, head+1")
-        sys.exit(1)
-    num_epochs = 10
+# Input format
+# python segmentation_and_classification.py [input_path] [output_path]
+input_path = ""
+output_path = ""
+if len(sys.argv) == 3:
+    input_path = sys.argv[1]
+    output_path = sys.argv[2]
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"The file {input_path} does not exist.")
+    if os.path.exists(output_path):
+        raise FileExistsError(f"The file {output_path} already exists.")
+else:
+    raise ValueError(
+        "Invalid number of arguments. Please provide input and output paths."
+    )
 
 processor = SegformerImageProcessor.from_pretrained("mattmdjaga/segformer_b2_clothes")
 model = AutoModelForSemanticSegmentation.from_pretrained(
@@ -40,9 +36,10 @@ model = AutoModelForSemanticSegmentation.from_pretrained(
 # image = Image.open(requests.get(url, stream=True).raw)
 
 # Set image
-image_location = "./test_imgs/"
-image_name = "jacket.jpg"
-image_path = os.path.join(image_location, image_name)
+# image_location = "./test_imgs/"
+# image_name = "jacket.jpg"
+# image_path = os.path.join(image_location, image_name)
+image_path = input_path
 
 # Label switiching
 # Labels: 0: "Background", 1: "Hat", 2: "Hair", 3: "Sunglasses", 4: "Upper-clothes", 5: "Skirt", 6: "Pants", 7: "Dress", 8: "Belt", 9: "Left-shoe", 10: "Right-shoe", 11: "Face", 12: "Left-leg", 13: "Right-leg", 14: "Left-arm", 15: "Right-arm", 16: "Bag", 17: "Scarf"
@@ -68,7 +65,7 @@ int_to_label = {
 }
 
 # Go to the directory of the file
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+# os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # Check if the file exists
 if not os.path.exists(image_path):
@@ -141,7 +138,7 @@ with Image.open(image_path).convert("RGB") as original_image:
                     output_image.putpixel((x, y), clothing_image.getpixel((x, y)))
 
         # Save the output image
-        output_image.save("filtered_clothing_image.png")
+        output_image.save(output_path)
         # print("Saved filtered image")
 
 # === Classification ===
@@ -178,9 +175,9 @@ def save_greyscale_image(image_array, output_path="./greyscale_test_out.png"):
 
 # Get local image path
 # Should be a 28x28 greyscale image, represented as a 784-long 1d array
-image_path = "./filtered_clothing_image.png"
+image_path = output_path
 input_image = to_28x28_greyscale(image_path)
-save_greyscale_image(input_image)
+# save_greyscale_image(input_image)
 # print(input_image.shape)  # Should print (28, 28)
 
 # Convert to a tensor
@@ -230,15 +227,15 @@ output_tensor = torch.cat(
 # Convert the output to a label
 # Labels 0 T-shirt/top, 1 Trouser, 2 Pullover, 3 Dress, 4 Coat, 5 Sandal, 6 Shirt, 7 Sneaker, 8 Bag, 9 Ankle boot
 int_to_label = {
-    0: "T-shirt/top",
-    1: "Trouser",
+    0: "Top",
+    1: "Pants",
     2: "Pullover",
     3: "Dress",
     4: "Coat",
-    5: "Sandal",
+    5: "Sandals",
     6: "Shirt",
-    7: "Sneaker",
-    8: "Ankle boot",
+    7: "Shoes",
+    8: "Boots",
 }
 
 # print("Predicted Label: ", int_to_label[torch.argmax(output_tensor).item()])
