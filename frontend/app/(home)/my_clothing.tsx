@@ -5,7 +5,7 @@ import * as FileSystem from 'expo-file-system'
 import * as SQLite from 'expo-sqlite';
 import axios from "axios";
 
-const db = SQLite.openDatabaseSync('fitCast.db');
+//const db = SQLite.openDatabaseSync('fitCast.db');
 
 export default function MyClothing() {
     const [modalVisible, setModalVisible] = useState(false); // State to control modal visibility
@@ -14,10 +14,10 @@ export default function MyClothing() {
     const [loadedImages, setloadedImages] = useState([]);  // Store the data from SQLite
 
     const fetchData = async () => {
-        db.withTransactionAsync(async () => {
-            await db.execAsync('CREATE TABLE IF NOT EXISTS processedImages (id INTEGER PRIMARY KEY NOT NULL, uri TEXT NOT NULL, intValue INTEGER);')
-            setloadedImages(await db.getAllAsync('SELECT * FROM processedImages'));
-        })
+        // db.withTransactionAsync(async () => {
+        //     await db.execAsync('CREATE TABLE IF NOT EXISTS processedImages (id INTEGER PRIMARY KEY NOT NULL, uri TEXT NOT NULL, intValue INTEGER);')
+        //     setloadedImages(await db.getAllAsync('SELECT * FROM processedImages'));
+        // })
     };
 
     useEffect(() => {
@@ -44,44 +44,44 @@ export default function MyClothing() {
     }
 
     const uploadPicture = async () => {
-        try {
-            if (!image) {
-                setUploadStatus('Please pick an image first!');
-                return;
-            }
-            const fileInfo = await FileSystem.getInfoAsync(image);
-            const fileExtension = fileInfo.uri.split('.').pop();
-            const mimeType = `image/${fileExtension === 'jpg' ? 'jpeg' : fileExtension}`;
-            const imageBlob = await fetch(image).then((res) => res.blob());
+        // try {
+        //     if (!image) {
+        //         setUploadStatus('Please pick an image first!');
+        //         return;
+        //     }
+        //     const fileInfo = await FileSystem.getInfoAsync(image);
+        //     const fileExtension = fileInfo.uri.split('.').pop();
+        //     const mimeType = `image/${fileExtension === 'jpg' ? 'jpeg' : fileExtension}`;
+        //     const imageBlob = await fetch(image).then((res) => res.blob());
       
-            const formData = new FormData();
-            formData.append('file', imageBlob, `image.${fileExtension}`);
-          const response = await axios.post('https://localhost:8080/processClothingImage', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data', // Ensure this header is set for file uploads
-            },
-          });
+        //     const formData = new FormData();
+        //     formData.append('file', imageBlob, `image.${fileExtension}`);
+        //   const response = await axios.post('https://localhost:8080/processClothingImage', formData, {
+        //     headers: {
+        //       'Content-Type': 'multipart/form-data', // Ensure this header is set for file uploads
+        //     },
+        //   });
     
-          if (response.status === 200) {
-            setUploadStatus('Upload Successful!');
-            //store image info to sql database and then 
-            //reset modal
-            await db.execAsync(`
-                PRAGMA journal_mode = WAL;
-                CREATE TABLE IF NOT EXISTS processedImages (id INTEGER PRIMARY KEY NOT NULL, uri TEXT NOT NULL, intValue INTEGER);
-                INSERT INTO processedImages (uri) VALUES ('${"sdfsdf"}');
-                `);
-            setUploadStatus('');
-            setImage(null);
-            setModalVisible(false);
-            fetchData();
-          } else {
-            setUploadStatus('Upload Failed.');
-          }
-        } catch (error) {
-          setUploadStatus('Error uploading image.');
-          console.error(error);
-        }
+        //   if (response.status === 200) {
+        //     setUploadStatus('Upload Successful!');
+        //     //store image info to sql database and then 
+        //     //reset modal
+        //     await db.execAsync(`
+        //         PRAGMA journal_mode = WAL;
+        //         CREATE TABLE IF NOT EXISTS processedImages (id INTEGER PRIMARY KEY NOT NULL, uri TEXT NOT NULL, intValue INTEGER);
+        //         INSERT INTO processedImages (uri) VALUES ('${"sdfsdf"}');
+        //         `);
+        //     setUploadStatus('');
+        //     setImage(null);
+        //     setModalVisible(false);
+        //     fetchData();
+        //   } else {
+        //     setUploadStatus('Upload Failed.');
+        //   }
+        // } catch (error) {
+        //   setUploadStatus('Error uploading image.');
+        //   console.error(error);
+        // }
       };
   
   return (
@@ -95,17 +95,10 @@ export default function MyClothing() {
                 <Text style={styles.itemText}>Add Clothing Item</Text>
             </TouchableOpacity>
         </View>
-
-        //for every element in the items array return a view
-        //load from db and refresh when new item is added
-
         {
             loadedImages.map((item) => (
                 <View key={"item.id"} style={styles.item}>
                     <Text style={styles.itemText}>{""}</Text>
-                    //the image
-                    //a button to remove the image
-                    //image name
                 </View>
             ))
         }
