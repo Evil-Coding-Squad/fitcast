@@ -78,8 +78,14 @@ func (handler *SegmentHandler) handlePost(w http.ResponseWriter, r *http.Request
 	w.Write(outputImage.Bytes)
 
 	// Remove the temp files
-	removeFile(sourceImg.FullPath)
-	removeFile(outputImage.FullPath)
+	if removed := removeFile(sourceImg.FullPath); !removed {
+		fmt.Println("Error removing the received image")
+		return
+	}
+	if removed := removeFile(outputImage.FullPath); !removed {
+		fmt.Println("Error removing the output image")
+		return
+	}
 
 	/* _, err = fmt.Fprintln(w, "Image processing not yet implemented")
 	if err != nil {
@@ -172,6 +178,7 @@ func saveFile(file multipart.File, header *multipart.FileHeader) (ImageFile, err
 }
 
 func removeFile(path string) bool {
+	fmt.Print("Removing file: ", path)
 	err := os.Remove(path)
 	if err != nil {
 		fmt.Println("\nCannot remove file. Reason: ", err)
