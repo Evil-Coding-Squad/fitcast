@@ -126,7 +126,7 @@ export default function MyClothing() {
                     <Text>Choose Image</Text>
                 </TouchableOpacity>
 
-                {image && <Image source = {image || ""}/>}
+                {image && <Image source = {{uri: image || ""}}/>}
 
                 <Button title="Cancel" onPress={toggleModal} color={"blue"}/>
 
