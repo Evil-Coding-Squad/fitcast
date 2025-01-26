@@ -5,7 +5,8 @@ import * as FileSystem from 'expo-file-system'
 import * as SQLite from 'expo-sqlite';
 import axios from "axios";
 import { SafeAreaView } from 'react-native-safe-area-context';
-const db = SQLite.openDatabaseSync('fitCast.db');
+import { ColorProperties } from "react-native-reanimated/lib/typescript/Colors";
+//const db = SQLite.openDatabaseSync('fitCast.db');
 
 export default function MyClothing() {
     const [modalVisible, setModalVisible] = useState(false); // State to control modal visibility
@@ -83,6 +84,14 @@ export default function MyClothing() {
         //   console.error(error);
         // }
       };
+
+    //   {
+    //     loadedImages.map((item) => (
+    //         <View key={"item.id"} style={styles.item}>
+    //             <Text style={styles.itemText}>{""}</Text>
+    //         </View>
+    //     ))
+    // }
   
   return (
     <ScrollView
@@ -95,24 +104,17 @@ export default function MyClothing() {
         </SafeAreaView>
         <View style = {styles.item}>
             <Pressable onPress={toggleModal}>
-                <Text>Add Clothing</Text>
+                <Text style={{
+                    color: 'white'
+                  }}>Add Clothing</Text>
             </Pressable>
         </View>
-        {
-            loadedImages.map((item) => (
-                <View key={"item.id"} style={styles.item}>
-                    <Text style={styles.itemText}>{""}</Text>
-                </View>
-            ))
-        }
+
 
         <Modal
          visible={modalVisible}
          animationType="slide" // Makes the modal slide down from the top
          onRequestClose={toggleModal} // Close modal when pressing back button on Android
-         style = {
-            styles.container
-         }
         >
             <View
                 style = {
@@ -122,16 +124,21 @@ export default function MyClothing() {
                 <TouchableOpacity onPress={choosePicture}>
                     <Image source = {require('../../assets/images/icons8-camera-100.png')}/>
                 </TouchableOpacity>
+
                 {image && <Image source = {{uri: image}}/>}
+
                 <TouchableOpacity onPress={toggleModal}>
                     <Text >Go Back</Text>
                 </TouchableOpacity>
+
                 {image &&
                     <TouchableOpacity onPress={uploadPicture}>
                         <Text >Upload</Text>
                     </TouchableOpacity>
                 }
+
                 {uploadStatus &&<Text > {uploadStatus}</Text>}
+
             </View>
         </Modal>
     </ScrollView>
