@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-const weather_api_url = "https://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&appid=%s"
+const weather_api_url = "https://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&appid=%s&units=metric"
 
 func parseLonAndLat(lonStr string, latStr string) (float64, float64, error) {
 	lon, err := strconv.ParseFloat(lonStr, 64)
