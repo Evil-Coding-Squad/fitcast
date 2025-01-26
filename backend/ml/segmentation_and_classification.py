@@ -8,6 +8,27 @@ import mplcursors
 import torch
 import torch.nn.functional as F
 import numpy as np
+import sys
+
+if len(sys.argv) == 1:
+    output_path = "./"
+    train_method = "full"
+    num_epochs = 10
+elif len(sys.argv) == 2:
+    output_path = sys.argv[1]
+    train_method = "full"
+elif len(sys.argv) == 3:
+    output_path = sys.argv[1]
+    if str.lower(sys.argv[2]) == "head":
+        train_method = "head"
+    elif str.lower(sys.argv[2]) == "full":
+        train_method = "full"
+    elif str.lower(sys.argv[2]) == "head+1":
+        train_method = "head+1"
+    else:
+        print("Invalid train method. Options: head, full, head+1")
+        sys.exit(1)
+    num_epochs = 10
 
 processor = SegformerImageProcessor.from_pretrained("mattmdjaga/segformer_b2_clothes")
 model = AutoModelForSemanticSegmentation.from_pretrained(
