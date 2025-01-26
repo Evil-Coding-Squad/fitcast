@@ -3,9 +3,10 @@ package main
 import (
 	"fitcast/server"
 	"fmt"
-	"github.com/joho/godotenv"
 	"log"
 	"net/http"
+
+	"github.com/joho/godotenv"
 )
 
 const port = ":8080"
