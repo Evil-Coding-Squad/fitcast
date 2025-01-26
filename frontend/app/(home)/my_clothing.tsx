@@ -6,7 +6,7 @@ import * as FileSystem from 'expo-file-system'
 import * as SQLite from 'expo-sqlite';
 import axios from "axios";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { blue, ColorProperties } from "react-native-reanimated/lib/typescript/Colors";
+import {blue, ColorProperties, green} from "react-native-reanimated/lib/typescript/Colors";
 import {API_URL} from "@/app/idfk/constants";
 
 const db = SQLite.openDatabaseSync('fitCast.db');
@@ -77,16 +77,33 @@ export default function MyClothing() {
             };
 
           const response = await axios.request(config);
-    
+
+          const getRandomInt = (min: number, max: number) => {
+              return Math.floor(Math.random() * (max - min + 1)) + min;
+          }
+
+          const saveImage = async (binaryData: string) => {
+              const filePath = `${FileSystem.documentDirectory}image${getRandomInt(0, 100000000)}.png`
+              try {
+                  await FileSystem.writeAsStringAsync(filePath, binaryData, {encoding: FileSystem.EncodingType.Base64})
+                  return Promise.resolve(filePath)
+              } catch (e) {
+                  console.error(e)
+              }
+          };
+
           if (response.status === 200) {
             console.log('Successful upload')
             //setUploadStatus('Upload Successful!');
             //store image info to sql database and then
             //reset modal
+              console.log(response.headers)
+              console.log(response.data)
+              const imageFilePath = saveImage(response.data)
             await db.execAsync(`
                 PRAGMA journal_mode = WAL;
                 CREATE TABLE IF NOT EXISTS processedImages (id INTEGER PRIMARY KEY NOT NULL, uri TEXT NOT NULL, intValue INTEGER);
-                INSERT INTO processedImages (uri) VALUES ('${image}');
+                INSERT INTO processedImages (uri) VALUES ('${imageFilePath}');
                 `);
             setUploadStatus('');
             setImage(null);
@@ -101,7 +118,25 @@ export default function MyClothing() {
         }
       };
 
-
+    const deleteImageById = async (id: string) => {
+        db.execSync(
+            `DELETE FROM processedImages WHERE id=${id}`
+        )
+        await fetchData()
+    }
+    function getImageCard(id: string, uri: string) {
+        const deleteImage = () => {
+        console.log(`image id: ${id}, uri: ${uri}`)
+        }
+        return (
+            <View key={id} style={styles.image_card}>
+                <Image source={{uri: uri}} style={styles.image_card_image}/>
+                <Pressable onPress={() => deleteImageById(id)}>
+                    <Text style={{color:"red"}}>DELETE</Text>
+                </Pressable>
+            </View>
+        )
+    }
   
   return (
     <ScrollView
@@ -112,6 +147,7 @@ export default function MyClothing() {
         <SafeAreaView>
 
         </SafeAreaView>
+        <View style={styles.image_card_container}>
             <Pressable onPress={toggleModal} style={styles.item}>
                 <Text style = {{
                     color: 'white'
@@ -120,14 +156,10 @@ export default function MyClothing() {
                     Add New Clothing
                 </Text>
             </Pressable>
-
             {
-              loadedImages.map((item) => (
-                <View key={item.id} style={styles.item}>
-                  <Text style={styles.itemText}>{item.uri}</Text>
-                </View>
-              ))
+              loadedImages.map(item => getImageCard(item.id, item.uri))
             }
+        </View>
         <Modal
          visible={modalVisible}
          animationType="slide" // Makes the modal slide down from the top
@@ -159,6 +191,7 @@ export default function MyClothing() {
   );
 }
 
+
 const ScreenWidth = Dimensions.get('window').width;
 
 const styles = StyleSheet.create({
@@ -168,6 +201,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
+    image_card: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: 10,
+        height: 80,
+        width: ScreenWidth * 0.7,
+        backgroundColor: "lightblue",
+        borderRadius: 15,
+    },
+    image_card_image: {
+        height: 60,
+        width: 60,
+        borderRadius: 10,
+    },
     image: {
         width: 200, // Adjust width
         height: 150, // Adjust height
@@ -181,6 +229,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
+    image_card_container: {
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 20,
+    },
   item: {
     justifyContent: 'center',
     alignItems: 'center',
