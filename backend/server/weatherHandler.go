@@ -47,7 +47,7 @@ func (handler *WeatherHandler) getWeatherHandler(w http.ResponseWriter, r *http.
 	}
 
 	apiKey := os.Getenv("WEATHER_API_KEY")
-	res, err := http.Get(fmt.Sprintf(weather_api_url, lon, lat, apiKey))
+	res, err := http.Get(fmt.Sprintf(weather_api_url, lat, lon, apiKey))
 	if err != nil {
 		w.WriteHeader(http.StatusBadGateway)
 		_, _ = fmt.Fprintln(w, "Error fetching weather.")
