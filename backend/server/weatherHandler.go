@@ -11,6 +11,20 @@ import (
 
 const weather_api_url = "https://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&appid=%s"
 
+func parseLonAndLat(lonStr string, latStr string) (float64, float64, error) {
+	lon, err := strconv.ParseFloat(lonStr, 64)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	lat, err := strconv.ParseFloat(latStr, 64)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return lon, lat, nil
+}
+
 type WeatherHandler struct{}
 
 func (handler *WeatherHandler) getWeatherHandler(w http.ResponseWriter, r *http.Request) {
@@ -18,15 +32,10 @@ func (handler *WeatherHandler) getWeatherHandler(w http.ResponseWriter, r *http.
 	query := r.URL.Query()
 	lonQuery, latQuery := query.Get("lon"), query.Get("lat")
 
-	lon, err := strconv.ParseFloat(lonQuery, 32)
+	lon, lat, err := parseLonAndLat(lonQuery, latQuery)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	lat, err := strconv.ParseFloat(latQuery, 32)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		_, _ = fmt.Fprintln(w, "Error parsing longitude and/or latitude. Please check your query parameters.")
 		return
 	}
 
