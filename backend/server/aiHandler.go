@@ -65,12 +65,21 @@ func (handler *SegmentHandler) handlePost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	//removeFile(sourceImg.FullPath)
+	outputImage, err := getFile(filepath.Join(tempFolderPath, "output_img.png"))
+	if err != nil {
+		fmt.Println("Error getting the output image. Reason: ", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "image/png")
 	w.Header().Set("Content-Disposition", `inline; filename="output_img.png"`)
 	w.Header().Set("Predicted-Label", predictedLabel)
-	w.Write(sourceImg.Bytes)
+	w.Write(outputImage.Bytes)
+
+	// Remove the temp files
+	removeFile(sourceImg.FullPath)
+	removeFile(outputImage.FullPath)
 
 	/* _, err = fmt.Fprintln(w, "Image processing not yet implemented")
 	if err != nil {
@@ -110,8 +119,18 @@ func getFile(filePath string) (ImageFile, error) {
 	}
 	defer file.Close()
 
-	//image, _, err := image.Decode(file)
-	return ImageFile{}, nil
+	filebytes, err := io.ReadAll(file)
+	if err != nil {
+		return ImageFile{}, err
+	}
+
+	image := ImageFile{
+		Name:     removeExtension(filePath),
+		FullPath: filePath,
+		MimeType: "image/png",
+		Bytes:    filebytes,
+	}
+	return image, nil
 }
 
 func removeExtension(filePath string) string {
