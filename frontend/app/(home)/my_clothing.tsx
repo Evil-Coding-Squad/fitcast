@@ -1,11 +1,11 @@
-import { ScrollView, Text, View, StyleSheet, Dimensions, Modal, TouchableOpacity, Image, Pressable} from "react-native";
+import { ScrollView, Text, View, StyleSheet, Dimensions, Modal, TouchableOpacity, Image, Button} from "react-native";
 import { useState, useEffect } from "react";
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system'
 import * as SQLite from 'expo-sqlite';
 import axios from "axios";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ColorProperties } from "react-native-reanimated/lib/typescript/Colors";
+import { blue, ColorProperties } from "react-native-reanimated/lib/typescript/Colors";
 //const db = SQLite.openDatabaseSync('fitCast.db');
 
 export default function MyClothing() {
@@ -103,11 +103,7 @@ export default function MyClothing() {
 
         </SafeAreaView>
         <View style = {styles.item}>
-            <Pressable onPress={toggleModal}>
-                <Text style={{
-                    color: 'white'
-                  }}>Add Clothing</Text>
-            </Pressable>
+          <Button title="Add New Clothing" onPress={toggleModal} color={"blue"}/>
         </View>
 
 
@@ -127,14 +123,10 @@ export default function MyClothing() {
 
                 {image && <Image source = {{uri: image}}/>}
 
-                <TouchableOpacity onPress={toggleModal}>
-                    <Text >Go Back</Text>
-                </TouchableOpacity>
+                <Button title="Cancel" onPress={toggleModal} color={"blue"}/>
 
                 {image &&
-                    <TouchableOpacity onPress={uploadPicture}>
-                        <Text >Upload</Text>
-                    </TouchableOpacity>
+                    <Button title="Upload" onPress={uploadPicture} color={'blue'}/>
                 }
 
                 {uploadStatus &&<Text > {uploadStatus}</Text>}
