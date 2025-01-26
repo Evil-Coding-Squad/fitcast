@@ -15,13 +15,13 @@ export default function MyClothing() {
     const [modalVisible, setModalVisible] = useState(false); // State to control modal visibility
     const [image, setImage] = useState<string | null>(null);
     const [uploadStatus, setUploadStatus] = useState('');
-    const [loadedImages, setloadedImages] = useState([]);  // Store the data from SQLite
+    const [loadedImages, setloadedImages] = useState<any[]>([]);  // Store the data from SQLite
 
     const fetchData = async () => {
-        // db.withTransactionAsync(async () => {
-        //     await db.execAsync('CREATE TABLE IF NOT EXISTS processedImages (id INTEGER PRIMARY KEY NOT NULL, uri TEXT NOT NULL, intValue INTEGER);')
-        //     setloadedImages(await db.getAllAsync('SELECT * FROM processedImages'));
-        // })
+        db.withTransactionAsync(async () => {
+            await db.execAsync('CREATE TABLE IF NOT EXISTS processedImages (id INTEGER PRIMARY KEY NOT NULL, uri TEXT NOT NULL, intValue INTEGER);')
+            setloadedImages(await db.getAllAsync('SELECT * FROM processedImages'));
+        })
     };
 
     useEffect(() => {
@@ -79,13 +79,14 @@ export default function MyClothing() {
           const response = await axios.request(config);
     
           if (response.status === 200) {
-            setUploadStatus('Upload Successful!');
+            console.log('Successful upload')
+            //setUploadStatus('Upload Successful!');
             //store image info to sql database and then
             //reset modal
             await db.execAsync(`
                 PRAGMA journal_mode = WAL;
                 CREATE TABLE IF NOT EXISTS processedImages (id INTEGER PRIMARY KEY NOT NULL, uri TEXT NOT NULL, intValue INTEGER);
-                INSERT INTO processedImages (uri) VALUES ('${"sdfsdf"}');
+                INSERT INTO processedImages (uri) VALUES ('${image}');
                 `);
             setUploadStatus('');
             setImage(null);
@@ -100,13 +101,7 @@ export default function MyClothing() {
         }
       };
 
-    //   {
-    //     loadedImages.map((item) => (
-    //         <View key={"item.id"} style={styles.item}>
-    //             <Text style={styles.itemText}>{""}</Text>
-    //         </View>
-    //     ))
-    // }
+
   
   return (
     <ScrollView
@@ -125,6 +120,14 @@ export default function MyClothing() {
                     Add New Clothing
                 </Text>
             </Pressable>
+
+            {
+              loadedImages.map((item) => (
+                <View key={item.id} style={styles.item}>
+                  <Text style={styles.itemText}>{item.uri}</Text>
+                </View>
+              ))
+            }
         <Modal
          visible={modalVisible}
          animationType="slide" // Makes the modal slide down from the top
